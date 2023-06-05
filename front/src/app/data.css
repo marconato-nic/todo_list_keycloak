@@ -1,0 +1,7 @@
+.done:not(button) {
+    text-decoration: line-through;
+}
+
+.black-text {
+    color: black;
+}
