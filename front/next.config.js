@@ -3,13 +3,9 @@ const nextConfig = {
     async rewrites() {
         return [
             {
-                source: '/tasks',
-                destination: 'http://localhost:3000/tasks/',
+                source: '/tasks/:path*',
+                destination: 'http://localhost:3000/tasks/:path*',
             },
-            {
-                source: '/tasks/:id',
-                destination: 'http://localhost:3000/tasks/:id'
-            }
         ];
     },
 }
