@@ -1,18 +1,24 @@
-import { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import './data.css'
 import checkIcon from '../../public/verified.png'
 import editIcon from '../../public/edit.png'
 import deleteIcon from '../../public/delete.png'
 import Image from 'next/image';
 
-export default function Data() {
-    const [tasks, setTask] = useState([])
-    const [click, setClick] = useState(false)
-    const [IDs, setID] = useState([])
-    const nomeTarefaRef = useRef(null)
-    const novoNomeTarefaRef = useRef(null)
+export default function Data() {    
+        interface Task {
+            id: number,
+            description: string,
+            done: boolean,
+        }
 
-    async function clickHandlerUpdate(task) {
+    const [tasks, setTask] = useState<Task[]>([])
+    const [click, setClick] = useState<boolean>(false)
+    const [IDs, setID] = useState<Number>()
+    const nomeTarefaRef = useRef<HTMLInputElement>(null)
+    const novoNomeTarefaRef = useRef<HTMLInputElement>(null)
+
+    async function clickHandlerUpdate(task: Task) {
         const data = await fetch(`http://localhost:3001/tasks/${task.id}`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
@@ -25,21 +31,25 @@ export default function Data() {
         getListTasks()
     }
 
-    async function clickHandlerUpdateName(task, event) {
+    async function clickHandlerUpdateName(task: Task, event: React.MouseEvent<HTMLButtonElement>) {
         event.preventDefault()
+        const target = novoNomeTarefaRef.current as HTMLInputElement;
+
+        console.log(novoNomeTarefaRef);
+
         const data = await fetch(`http://localhost:3001/tasks/${task.id}`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 id: task.id,
-                description: novoNomeTarefaRef.current.value,
+                description: target.value,
                 done: false,
             })
         })
         getListTasks()
     }
 
-    async function clickHandlerDelete(id) {
+    async function clickHandlerDelete(id: number) {
         const data = await fetch(`http://localhost:3001/tasks/${id}`, {
             method: 'DELETE',
             headers: { 'Content-Type': 'application/json' },
@@ -47,20 +57,22 @@ export default function Data() {
         getListTasks()
     }
 
-    async function clickHandlerCreate(event) {
+    async function clickHandlerCreate(event: React.MouseEvent<HTMLButtonElement>) {
         event.preventDefault()
+        const target = nomeTarefaRef.current as HTMLInputElement;
+
         const data = await fetch(`http://localhost:3001/tasks/`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                description: nomeTarefaRef.current.value,
+                description: target.value,
                 done: false,
             })
         })
         getListTasks()
     }
 
-    async function clickHandler(id) {
+    async function clickHandler(id: number) {
         setClick(click => !click)
         setID(id)
     }
@@ -89,12 +101,12 @@ export default function Data() {
                     {tasks.map((task) =>
                         <li key={task.id} className={`py-2 px-2 ${task.done ? 'done' : ''}`}>
                             &quot;{task.description}&quot;{" "}<br></br>
-                            <button className={`mx-1 ${task.done ? 'bg-yellow-500 hover:bg-yellow-700' : 'bg-blue-500 hover:bg-blue-700'} text-white font-bold py-2 px-4 rounded`} onClick={() => { clickHandlerUpdate(task) }}><Image src={checkIcon} /></button>
-                            <button id="createButton" className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded" onClick={() => { clickHandlerDelete(task.id) }}><Image src={deleteIcon} /></button>
-                            <button className="mx-1 bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded" onClick={() => { clickHandler(task.id) }}><Image src={editIcon} /></button>
+                            <button className={`mx-1 ${task.done ? 'bg-yellow-500 hover:bg-yellow-700' : 'bg-blue-500 hover:bg-blue-700'} text-white font-bold py-2 px-4 rounded`} onClick={() => { clickHandlerUpdate(task) }}><Image alt="" src={checkIcon} /></button>
+                            <button id="createButton" className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded" onClick={() => { clickHandlerDelete(task.id) }}><Image alt="" src={deleteIcon} /></button>
+                            <button className="mx-1 bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded" onClick={() => { clickHandler(task.id) }}><Image alt="" src={editIcon} /></button>
                             {click && IDs == task.id && (<form className="py-2">
                                 <input ref={novoNomeTarefaRef} type="text" className="my-2 rounded black-text" placeholder="Novo nome da tarefa"></input><br></br>
-                                <button onClick={(e) => { clickHandlerUpdateName(task, event); setClick(false) }} className="bg-green-500 hover:bg-green-700 text-white font-bold py-0 px-2 rounded">Atualizar</button>
+                                <button onClick={(e) => { clickHandlerUpdateName(task, e); setClick(false) }} className="bg-green-500 hover:bg-green-700 text-white font-bold py-0 px-2 rounded">Atualizar</button>
                             </form>)}
                         </li>)}
                 </ul>
